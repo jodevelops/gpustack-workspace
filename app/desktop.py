@@ -93,6 +93,7 @@ def shortcut_script(python, root, directory, port):
         "$link.Arguments = " + powershell_literal(arguments),
         "$link.WorkingDirectory = " + powershell_literal(root),
         "$link.Description = 'GPUStack Arbeitsraum lokal starten'",
+        "$link.IconLocation = " + powershell_literal(Path(root) / "web" / "arbeitsraum.ico"),
         "$link.WindowStyle = 7",
         "$link.Save()",
     ])

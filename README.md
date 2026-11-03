@@ -1,14 +1,14 @@
 # GPUStack Arbeitsraum
 
 Ein persönlicher KI-Arbeitsraum für Gespräche, eigene Quellen und Sammlungsarbeit.
-Die deutsche Oberfläche läuft lokal im Browser; die Modelle werden über deinen
+Die deutsche Oberfläche läuft lokal im Browser; die Modelle werden über Ihren
 GPUStack- oder OpenAI-kompatiblen Endpunkt angesprochen.
 
 **Version 0.1.10 · Proof of Concept · Stand 3. November 2026**
 
 ## 1. Auf einen Blick
 
-| Bereich | Was du damit machen kannst |
+| Bereich | Was Sie damit machen können |
 |---|---|
 | **Chats & Projekte** | Gespräche, Projektnotizen und Verlauf zusammenhalten; Antworten exportieren. |
 | **Eigene Quellen** | Dokumente hochladen, Bilder/PDFs ansehen und ausgewählte Quellen im Chat befragen. |
@@ -17,14 +17,36 @@ GPUStack- oder OpenAI-kompatiblen Endpunkt angesprochen.
 | **Audio & Transkripte** | Aufnehmen oder hochladen, transkribieren, Text bearbeiten und Ergebnisse exportieren. |
 | **Routinen & Datenlabor** | Wiederkehrende Modellaufträge planen; Tabellen und Office-Ausgaben optional im Docker-Runner berechnen. |
 
-**Ablage lokal, Modellanfragen an deinen Endpunkt.** Projekte, Chats und Dateien
-bleiben auf deinem Rechner. Ausgewählte Inhalte gehen bei einer Modellanfrage
-an den von dir eingerichteten Dienst.
+**Ablage lokal, Modellanfragen an Ihren Endpunkt.** Projekte, Chats und Dateien
+bleiben auf Ihrem Rechner. Ausgewählte Inhalte gehen bei einer Modellanfrage
+an den von Ihnen eingerichteten Dienst.
 
 [Installation](#2-lokal-starten) · [GPUStack verbinden](#3-gpustack-verbinden) ·
 [Erster Arbeitsablauf](#4-der-erste-vollständige-arbeitsablauf)
 
+Dieser Branch **`design/ub-bern`** überträgt das bereitgestellte UB-Bern-Designsystem
+auf die Anwendung: UniBE-Rot, Weissraum, Arial und ein dezentes Schild mit drei
+KI-Sternen. Die [Designnotizen](docs/UB_BERN_DESIGN.md) beschreiben Farben,
+Typografie und die Anpassung an eine bedienbare Oberfläche.
+
+<details>
+<summary>Einblick: Startseite und Chat im UB-Bern-Design</summary>
+
+Echte Aufnahmen der lokalen Anwendung mit frei erfundenen Beispieldaten.
+Die Chatantwort ist vorgefüllt; für diese Aufnahmen wurde kein Modell angefragt.
+
+![Startseite mit Navigation, Schildlogo und zweifarbiger Überschrift](docs/screenshots/ub-bern-overview.png)
+
+![Beispielchat mit Quellenpanel und dem neuen Schildlogo bei der Antwort](docs/screenshots/ub-bern-chat.png)
+
+</details>
+
 ## 2. Lokal starten
+
+Für diese Designversion das vollständige
+[ZIP des Branches `design/ub-bern`](https://github.com/jodevelops/gpustack-workspace/archive/refs/heads/design/ub-bern.zip)
+herunterladen und entpacken. Der Start erfolgt wie unten beschrieben per
+Doppelklick auf **`start.cmd`**.
 
 Das Repository enthält das vollständige Installationspaket einschließlich
 `start.py`, `start.cmd`, grafischem Starter `desktop.pyw`, Abhängigkeitslisten, Beispieldateien und optionalem

@@ -45,26 +45,51 @@ def main():
             self.root.title("GPUStack Arbeitsraum")
             self.root.geometry("590x410")
             self.root.minsize(560, 410)
+            self.root.configure(background="#FFFFFF")
             style = ttk.Style(self.root)
-            if "vista" in style.theme_names():
-                style.theme_use("vista")
+            style.theme_use("clam")
+            style.configure(".", font=("Arial", 10), background="#FFFFFF", foreground="#000000")
+            style.configure("TFrame", background="#FFFFFF")
+            style.configure("TLabel", background="#FFFFFF", foreground="#000000")
+            style.configure("Title.TLabel", font=("Arial", 19), foreground="#E6002E")
+            style.configure("Muted.TLabel", foreground="#5C5D61")
+            style.configure("TButton", padding=(10, 7), relief="flat", borderwidth=1,
+                            background="#FFFFFF", foreground="#000000", bordercolor="#7A7C81",
+                            lightcolor="#FFFFFF", darkcolor="#FFFFFF")
+            style.map("TButton", background=[("active", "#EDEDED")],
+                      bordercolor=[("focus", "#E6002E")], foreground=[("disabled", "#5C5D61")])
+            style.configure("Primary.TButton", background="#E6002E", foreground="#FFFFFF",
+                            bordercolor="#E6002E", lightcolor="#E6002E", darkcolor="#E6002E")
+            style.map("Primary.TButton", background=[("disabled", "#EDEDED"), ("active", "#000000")],
+                      foreground=[("disabled", "#5C5D61"), ("!disabled", "#FFFFFF")],
+                      bordercolor=[("disabled", "#EDEDED"), ("active", "#000000")])
+            style.configure("Horizontal.TProgressbar", background="#E6002E", troughcolor="#EDEDED",
+                            borderwidth=0, lightcolor="#E6002E", darkcolor="#E6002E")
             self.service = None
             self.worker = None
             self.closing = False
             self.log_visible = False
+            tk.Frame(self.root, height=4, background="#E6002E").pack(fill="x")
             self.frame = ttk.Frame(self.root, padding=24)
             self.frame.pack(fill="both", expand=True)
-            ttk.Label(self.frame, text="GPUStack Arbeitsraum", font=("Segoe UI", 19, "bold")).pack(anchor="w")
-            ttk.Label(self.frame, text=f"Dein lokaler KI-Arbeitsraum · Version {__version__}").pack(anchor="w", pady=(3, 20))
+            brand = ttk.Frame(self.frame)
+            brand.pack(anchor="w")
+            self.brand_image = tk.PhotoImage(file=str(ROOT / "web" / "brandmark.png"))
+            self.brand_small = self.brand_image.subsample(4, 4)
+            self.root.iconphoto(True, self.brand_image)
+            ttk.Label(brand, image=self.brand_small).pack(side="left", padx=(0, 10))
+            ttk.Label(brand, text="GPUStack ", font=("Arial", 19)).pack(side="left")
+            ttk.Label(brand, text="Arbeitsraum", style="Title.TLabel").pack(side="left")
+            ttk.Label(self.frame, text=f"Lokaler KI-Arbeitsraum · Version {__version__}", style="Muted.TLabel").pack(anchor="w", pady=(3, 20))
             self.status = tk.StringVar(value="Vorbereitung …")
-            ttk.Label(self.frame, textvariable=self.status, wraplength=500, font=("Segoe UI", 11)).pack(anchor="w")
+            ttk.Label(self.frame, textvariable=self.status, wraplength=500, font=("Arial", 11)).pack(anchor="w")
             self.note = tk.StringVar(value="Die Oberfläche öffnet sich, sobald der Arbeitsraum bereit ist.")
             ttk.Label(self.frame, textvariable=self.note, wraplength=500).pack(anchor="w", pady=(8, 15))
             self.progress = ttk.Progressbar(self.frame, mode="indeterminate")
             self.progress.pack(fill="x", pady=(0, 15))
             row = ttk.Frame(self.frame)
             row.pack(fill="x")
-            self.primary = ttk.Button(row, text="Startet …", state="disabled")
+            self.primary = ttk.Button(row, text="Startet …", state="disabled", style="Primary.TButton")
             self.primary.pack(side="left")
             self.shortcut = ttk.Button(row, text="Desktop-Verknüpfung", command=self.make_shortcut, state="disabled")
             if os.name == "nt":
@@ -76,7 +101,9 @@ def main():
             ttk.Button(tools, text="Details", command=self.toggle_log).pack(side="left")
             ttk.Button(tools, text="Protokoll kopieren", command=self.copy_log).pack(side="left", padx=8)
             self.log_frame = ttk.Frame(self.frame)
-            self.log = tk.Text(self.log_frame, height=12, wrap="word", font=("Consolas", 9), state="disabled")
+            self.log = tk.Text(self.log_frame, height=12, wrap="word", font=("Consolas", 9), state="disabled",
+                               background="#FFFFFF", foreground="#000000", relief="solid", borderwidth=1,
+                               highlightbackground="#7A7C81", highlightcolor="#E6002E", highlightthickness=1)
             scroll = ttk.Scrollbar(self.log_frame, orient="vertical", command=self.log.yview)
             self.log.configure(yscrollcommand=scroll.set)
             self.log.pack(side="left", fill="both", expand=True)
@@ -128,7 +155,7 @@ def main():
             elif kind in ("ready", "existing"):
                 self.progress.stop()
                 self.status.set("Arbeitsraum bereit")
-                self.note.set("Fenster schließen oder Beenden stoppt den lokalen Dienst.")
+                self.note.set("Fenster schliessen oder Beenden stoppt den lokalen Dienst.")
                 self.primary.configure(text="Arbeitsraum öffnen", state="normal", command=self.open)
                 self.shortcut.configure(state="normal")
                 self.open()
@@ -138,7 +165,7 @@ def main():
             elif kind in ("error", "stopped"):
                 self.progress.stop()
                 self.status.set(value)
-                self.note.set("Deine gespeicherten Projekte und Dateien bleiben erhalten.")
+                self.note.set("Ihre gespeicherten Projekte und Dateien bleiben erhalten.")
                 self.primary.configure(text="Erneut versuchen", state="normal", command=self.begin)
                 if kind == "error" and not self.log_visible:
                     self.toggle_log()
