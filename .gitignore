@@ -1,0 +1,27 @@
+# Private settings and runtime data
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+/data/
+/uploads/
+/chats/
+*.sqlite
+*.sqlite3
+*.db
+*.log
+
+# Python and frontend dependencies
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
