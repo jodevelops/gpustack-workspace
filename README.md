@@ -41,23 +41,58 @@ Browser. Für die Grundanwendung werden weder Node.js noch Docker oder
 Administratorrechte benötigt. Der Arbeitsraum ist für ein Betriebssystemkonto
 auf einem persönlichen Rechner vorgesehen.
 
-### Windows: ohne PowerShell und ohne Aktivierungsskript
+### Windows / PowerShell: mit vorhandenem Python
 
-ZIP vollständig in einen lokalen, beschreibbaren Ordner entpacken.
-Die folgenden Befehle in der **Eingabeaufforderung (cmd.exe)** in diesem Ordner
-ausführen:
+Zuerst das **vollständige Repository-ZIP** über **Code → Download ZIP**
+herunterladen und in einen neuen Ordner entpacken. Das ältere
+`GPUStack-Arbeitsraum-Update-v0.1.8` ist ein Ergänzungspaket und enthält weder
+`start.py` noch `requirements.txt`. Änderungen auf GitHub ergänzen einen schon
+entpackten Downloadordner nicht automatisch.
 
-```bat
-py -3.13 -m venv .venv
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe start.py
+PowerShell in dem entpackten Ordner öffnen, in dem `start.py`, `start.cmd`
+und `requirements.txt` direkt liegen. Je nach gewähltem Entpackziel kann
+`gpustack-workspace-main` eine Ordnerebene tiefer liegen. Zuerst prüfen:
+
+```powershell
+Get-Item -LiteralPath '.\start.py', '.\requirements.txt' | Select-Object Name
+python --version
 ```
 
-Ist Python über `python` statt über den Python-Launcher erreichbar, lautet die
-erste Zeile `python -m venv .venv`. Danach gelten dieselben Befehle.
-Nach der einmaligen Installation genügt ein Doppelklick auf `start.cmd`.
+Wenn beide Dateien angezeigt werden und Python mindestens Version 3.11 hat,
+die folgenden Befehle **einzeln** ausführen und bei einem Fehler anhalten:
+
+```powershell
+python -m pip install --user -r .\requirements.txt
+python .\start.py --check
+python .\start.py
+```
+
+Wenn die IT die benötigten Pakete bereits für diesen Interpreter bereitstellt,
+entfällt der Installationsbefehl. Ist die Benutzerinstallation gesperrt, die
+Abhängigkeitsliste der IT geben. Für diesen Startweg wird keine virtuelle
+Umgebung angelegt. Der zusätzliche Python-Launcher `py` wird nicht benötigt;
+entscheidend ist der bereits funktionierende Aufruf `python`.
+
+Nach erfolgreicher Einrichtung genügt auch ein Doppelklick auf `start.cmd`.
 Der Starter verwendet zuerst `.venv\Scripts\python.exe`, sonst `py -3` und
 danach `python`. Er installiert und lädt selbst keine Pakete nach.
+
+### Windows / PowerShell: optional mit virtueller Umgebung
+
+Wenn virtuelle Umgebungen auf dem Rechner erlaubt sind, im selben vollständigen
+Programmordner stattdessen diese Variante verwenden. Jeden Befehl erst nach
+erfolgreichem Abschluss des vorherigen ausführen:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r .\requirements.txt
+.\.venv\Scripts\python.exe .\start.py --check
+.\.venv\Scripts\python.exe .\start.py
+```
+
+Schlägt das Anlegen fehl, existiert auch `.venv\Scripts\python.exe` nicht.
+PowerShell benötigt bei diesem relativen Programmpfad das führende `.\`.
+Die Umgebung muss für diese Aufrufe nicht aktiviert werden.
 
 Der Browser öffnet `http://127.0.0.1:8765` erst, wenn der lokale Server erfolgreich
 gestartet ist. Im Terminal erscheint **Arbeitsraum bereit**.
@@ -66,28 +101,6 @@ Das Konsolenfenster muss während der Nutzung geöffnet bleiben. Zum Beenden
 Die Installation lädt Python-Pakete aus dem eingestellten Paketindex. In einem
 abgeschotteten Netz kann die IT die Pakete über einen internen Mirror oder ein
 passendes Wheel-Paket bereitstellen.
-
-### Windows: bereits vorhandenes Python ohne virtuelle Umgebung
-
-Wenn die IT die Pakete bereits für den verwendeten Interpreter bereitstellt,
-in cmd.exe direkt prüfen und starten:
-
-```bat
-python start.py --check
-python start.py
-```
-
-Falls Benutzerinstallationen erlaubt sind, die Pakete einmalig mit genau
-diesem Interpreter installieren:
-
-```bat
-python -m pip install --user -r requirements.txt
-```
-
-Das benötigt keine Administratorrechte, kann aber institutionellen Vorgaben
-unterliegen. Ist auch die Paketinstallation gesperrt, die Abhängigkeitsliste
-der IT geben. `start.cmd` funktioniert ebenfalls mit bereits installierten
-Paketen ohne `.venv`.
 
 ### Linux / macOS
 
@@ -550,6 +563,9 @@ erfolgreichen Start und zeigt die Startmeldungen des Servers.
 
 | Meldung / Beobachtung | Nächster Schritt |
 |---|---|
+| `start.py` / `requirements.txt` nicht gefunden | Vollständiges Repository-ZIP neu entpacken; in den Ordner mit diesen Dateien wechseln. Das Updatepaket 0.1.8 enthält sie nicht. |
+| `py` nicht erkannt | Den bereits vorhandenen Interpreter mit `python` aufrufen. |
+| PowerShell meldet ein Modul `.venv` | Die Umgebung muss zuerst erfolgreich angelegt sein. Anschließend `.\.venv\Scripts\python.exe` mit führendem `.\` verwenden. |
 | GPUStack nicht erreichbar | VPN auf dem Rechner prüfen, Basis-URL und internes Zertifikat kontrollieren |
 | HTTP 401 / 403 | API-Schlüssel, Ablaufdatum und Modellberechtigungen prüfen |
 | HTTP 404 | /v1 bzw. /v1-openai und Modell-Deployment prüfen |
