@@ -124,7 +124,19 @@ def announce_when_ready(server, url: str, stopped: threading.Event, open_browser
             return
 
 
-def serve(directory: Path, port: int, open_browser: bool) -> int:
+def stop_when_controller_closes(server, stream) -> None:
+    """The desktop parent owns this pipe; EOF also handles a crashed parent."""
+    try:
+        for line in stream:
+            if line.strip() == "stop":
+                break
+    except (OSError, ValueError):
+        pass
+    finally:
+        server.should_exit = True
+
+
+def serve(directory: Path, port: int, open_browser: bool, desktop_control: bool = False) -> int:
     import uvicorn
 
     # Configure before importing app.store: never depend on the caller's cwd.
@@ -135,6 +147,7 @@ def serve(directory: Path, port: int, open_browser: bool) -> int:
     server = uvicorn.Server(uvicorn.Config(
         app, host="127.0.0.1", port=port, workers=1,
         access_log=False, log_level="info",
+        timeout_graceful_shutdown=10 if desktop_control else None,
     ))
     stopped = threading.Event()
     monitor = threading.Thread(
@@ -143,6 +156,8 @@ def serve(directory: Path, port: int, open_browser: bool) -> int:
     print(f"Datenordner: {directory}", flush=True)
     print("Zum Beenden Strg+C drücken.", flush=True)
     monitor.start()
+    if desktop_control:
+        threading.Thread(target=stop_when_controller_closes, args=(server, sys.stdin), daemon=True).start()
     try:
         server.run()
     except SystemExit as exc:
@@ -173,6 +188,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--data-dir", metavar="ORDNER", help="Vorhandenen Datenordner verwenden; Vorrang vor WORKROOM_DATA_DIR.")
     parser.add_argument("--no-browser", action="store_true", help="Browser nicht automatisch öffnen.")
     parser.add_argument("--check", action="store_true", help="Installation und Datenordner prüfen, ohne Serverstart oder Modellanfrage.")
+    parser.add_argument("--desktop-control", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     try:
         directory = data_directory(args.data_dir)
@@ -181,7 +197,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"Installation geprüft: Version {__version__}; Datenordner: {directory}", flush=True)
             return 0
         with DataDirectoryLock(directory):
-            return serve(directory, args.port, not args.no_browser)
+            return serve(directory, args.port, not args.no_browser, args.desktop_control)
     except (OSError, RuntimeError, ImportError) as exc:
         print(f"ERROR: Start fehlgeschlagen: {exc}", file=sys.stderr, flush=True)
         return 1

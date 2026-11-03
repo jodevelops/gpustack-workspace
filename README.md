@@ -4,7 +4,7 @@ Ein persönlicher KI-Arbeitsraum für Gespräche, eigene Quellen und Sammlungsar
 Die deutsche Oberfläche läuft lokal im Browser; die Modelle werden über deinen
 GPUStack- oder OpenAI-kompatiblen Endpunkt angesprochen.
 
-**Version 0.1.9 · Proof of Concept · Stand 3. November 2026**
+**Version 0.1.10 · Proof of Concept · Stand 3. November 2026**
 
 ## 1. Auf einen Blick
 
@@ -27,7 +27,7 @@ an den von dir eingerichteten Dienst.
 ## 2. Lokal starten
 
 Das Repository enthält das vollständige Installationspaket einschließlich
-`start.py`, `start.cmd`, Abhängigkeitslisten, Beispieldateien und optionalem
+`start.py`, `start.cmd`, grafischem Starter `desktop.pyw`, Abhängigkeitslisten, Beispieldateien und optionalem
 Docker-Bauplan. Oberfläche und Ablage benötigen keinen Cloud-Dienst.
 Eure GPUStack-URL und ein API-Schlüssel werden erst vor Ort eingetragen.
 Die mitgelieferten Beispieldaten sind frei erfunden.
@@ -40,6 +40,38 @@ Voraussetzungen: Python 3.11 oder neuer, empfohlen 3.12/3.13, und ein aktueller
 Browser. Für die Grundanwendung werden weder Node.js noch Docker oder
 Administratorrechte benötigt. Der Arbeitsraum ist für ein Betriebssystemkonto
 auf einem persönlichen Rechner vorgesehen.
+
+### Windows: per Doppelklick starten
+
+1. Das vollständige Repository-ZIP herunterladen und **vollständig entpacken**.
+   Den Programmordner an einem beschreibbaren, dauerhaften Ort behalten.
+2. **`start.cmd` doppelklicken.** Ein kleines Startfenster öffnet sich.
+3. Falls Pakete fehlen, einmal **Einrichten und starten** anklicken. Die
+   Einrichtung lädt die benötigten Python-Pakete; Fortschritt und Fehler sind
+   im Fenster sichtbar. Es müssen keine Terminalbefehle eingegeben werden.
+4. Sobald der Dienst bereit ist, öffnet sich der Arbeitsraum. Unter Windows
+   wird ein eigenes Edge-/Chrome-App-Fenster verwendet, wenn der Browser an
+   einem üblichen Installationsort gefunden wird; andernfalls der Standardbrowser.
+5. Bei Bedarf im Startfenster **Desktop-Verknüpfung** anklicken. Danach lässt
+   sich der Arbeitsraum direkt über das Desktop-Symbol öffnen.
+
+Bei weiteren Starts entfallen die Einrichtungsschritte. Das Programm läuft im
+Hintergrund ohne dauerhaft offenes Konsolenfenster; beim Aufruf von `start.cmd`
+kann kurz ein Konsolenfenster erscheinen. Das Startfenster bleibt für Status
+und **Beenden** verfügbar. Dieses Fenster zu schließen beendet den selbst
+gestarteten lokalen Dienst. Ein weiterer Aufruf öffnet eine bereits laufende
+Instanz mit demselben Datenordner erneut.
+
+Voraussetzung bleibt ein vorhandenes **Python 3.11 oder neuer mit Tcl/Tk**;
+die reguläre Windows-Installation einschließlich Microsoft-Store-Python bringt
+Tcl/Tk üblicherweise mit. In einer virtuellen Umgebung werden Pakete dort
+installiert, sonst für das aktuelle Benutzerkonto. Institutionell gesperrte
+Paketinstallationen müssen weiterhin von der IT bereitgestellt werden.
+
+`desktop.pyw` kann bei eingerichteter Python-Dateizuordnung auch direkt
+gedoppelklickt werden. Für Fehlerdiagnosen gibt es **`start-debug.cmd`**, das
+den bisherigen Konsolenstart beibehält. Die folgenden PowerShell-Wege sind
+Alternativen zum grafischen Start.
 
 ### Windows / PowerShell: mit vorhandenem Python
 
@@ -74,8 +106,9 @@ Umgebung angelegt. Der zusätzliche Python-Launcher `py` wird nicht benötigt;
 entscheidend ist der bereits funktionierende Aufruf `python`.
 
 Nach erfolgreicher Einrichtung genügt auch ein Doppelklick auf `start.cmd`.
-Der Starter verwendet zuerst `.venv\Scripts\python.exe`, sonst `py -3` und
-danach `python`. Er installiert und lädt selbst keine Pakete nach.
+Der Starter verwendet zuerst `.venv\Scripts\python.exe`, sonst `python` und
+danach `py -3`. Fehlende Pakete werden erst nach Klick auf **Einrichten und
+starten** installiert.
 
 ### Windows / PowerShell: optional mit virtueller Umgebung
 
@@ -96,8 +129,9 @@ Die Umgebung muss für diese Aufrufe nicht aktiviert werden.
 
 Der Browser öffnet `http://127.0.0.1:8765` erst, wenn der lokale Server erfolgreich
 gestartet ist. Im Terminal erscheint **Arbeitsraum bereit**.
-Das Konsolenfenster muss während der Nutzung geöffnet bleiben. Zum Beenden
-**Strg+C** drücken. Ein laufender Chat wird dadurch unterbrochen.
+Beim Start über das Terminal muss dessen Fenster während der Nutzung geöffnet
+bleiben. Zum Beenden **Strg+C** drücken. Beim grafischen Start stattdessen im
+Startfenster **Beenden** wählen. Ein laufender Chat wird beim Beenden unterbrochen.
 Die Installation lädt Python-Pakete aus dem eingestellten Paketindex. In einem
 abgeschotteten Netz kann die IT die Pakete über einen internen Mirror oder ein
 passendes Wheel-Paket bereitstellen.
@@ -367,18 +401,21 @@ Private IP-Adressen und Weiterleitungen darauf sind gesperrt; robots.txt wird
 geprüft. Eine Suche ist kein Nachweis für korrekte Modellantworten.
 Einrichtung, Datenwege, Grenzen und Abnahme: **[Websuche](docs/WEBSUCHE.md)**.
 
-### Grosse Dokumente und Update auf 0.1.9
+### Grosse Dokumente und Update auf 0.1.10
 
 Version 0.1.8 lag nur als Ergänzungspaket ohne Starter und Abhängigkeitslisten
 vor. Das GitHub-Repository ab 0.1.9 enthält wieder das vollständige Paket.
+Ab 0.1.10 ergänzt der grafische Starter die Einrichtung und den alltäglichen
+Start per Doppelklick.
 Für ein Update den Dienst beenden und den in den Einstellungen angezeigten
 Datenordner sichern. Das neue Repository-ZIP separat entpacken. Eigene
 Startargumente, insbesondere `--data-dir`, für den neuen Starter übernehmen.
 Ein bestehender `data`-Ordner neben dem alten Starter kann entweder am selben
 Ort weiterverwendet oder mit `--data-dir` ausdrücklich angegeben werden.
 
-Mit dem verwendeten Python die Abhängigkeiten aus `requirements.txt`
-installieren und die Einrichtung mit `start.py --check` prüfen.
+Über `start.cmd` die Einrichtung im Startfenster ausführen oder mit dem
+verwendeten Python die Abhängigkeiten aus `requirements.txt` installieren
+und die Einrichtung mit `start.py --check` prüfen.
 Das Paket enthält keine Nutzerdaten und keine persönlichen Schlüssel.
 
 Anschließend wie bisher starten, die Browserseite mit **Strg+F5** neu laden,
@@ -563,6 +600,8 @@ erfolgreichen Start und zeigt die Startmeldungen des Servers.
 
 | Meldung / Beobachtung | Nächster Schritt |
 |---|---|
+| Grafisches Startfenster öffnet sich nicht | `start-debug.cmd` doppelklicken; vollständiges Paket und Python mit Tcl/Tk prüfen. |
+| Grafische Einrichtung schlägt fehl | Im Startfenster **Details** öffnen bzw. **Protokoll kopieren**; Paketquelle, Internetzugriff und institutionelle Installationsrechte prüfen. |
 | `start.py` / `requirements.txt` nicht gefunden | Vollständiges Repository-ZIP neu entpacken; in den Ordner mit diesen Dateien wechseln. Das Updatepaket 0.1.8 enthält sie nicht. |
 | `py` nicht erkannt | Den bereits vorhandenen Interpreter mit `python` aufrufen. |
 | PowerShell meldet ein Modul `.venv` | Die Umgebung muss zuerst erfolgreich angelegt sein. Anschließend `.\.venv\Scripts\python.exe` mit führendem `.\` verwenden. |

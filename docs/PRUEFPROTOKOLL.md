@@ -1,5 +1,43 @@
 # Prüfprotokoll
 
+## Grafischer Starter 0.1.10 — 3. November 2026
+
+Der vollständige Python-Lauf unter Linux/Python 3.12.14 besteht mit
+**152 Tests**, davon 26 Start-/Desktopprüfungen, in 29,19 Sekunden.
+`pip check` meldet keine Abhängigkeitskonflikte. Neue Python- und PYW-Dateien
+wurden auf gültige Syntax, README-Verweise auf vorhandene Dateien geprüft.
+
+Neu geprüft wurden:
+
+- Der Desktop-Prozesscontroller lässt sich ohne installierte Backendpakete
+  importieren. Die grafische Einrichtung benötigt vorab keine FastAPI-/HTTPX-Pakete.
+- Eine Paketinstallation erfolgt nur nach der expliziten Einrichtungsaktion.
+  Eine fehlgeschlagene Installation startet keinen Server; Abbrechen vor dem
+  Start führt weder Installation noch Serverstart aus.
+- Die Installationsargumente verwenden denselben Python-Interpreter und eine
+  Benutzerinstallation bzw. die vorhandene virtuelle Umgebung, ohne eine
+  Administratorinstallation oder lokale Paketkompilierung anzufordern.
+- Ein tatsächlicher lokaler Python-Dienst wurde durch den Desktop-Controller
+  gestartet. Nach dem Bereitschaftssignal liefern Oberfläche und Bootstrap HTTP 200.
+- Eine zweite Desktop-Instanz verwendet denselben laufenden Arbeitsraum erneut;
+  ein abweichender Datenordner wird nicht als dieselbe Instanz akzeptiert.
+- **Beenden** über die private Prozess-Pipe beendet den tatsächlichen Dienst
+  mit Exitstatus 0. Auch das Schließen der Pipe, entsprechend dem Ausfall des
+  Controllers, beendet den Dienst kontrolliert.
+- Verknüpfungsargumente erhalten Leerzeichen und Apostrophe in Pfaden.
+  Es wird kein Umgehen der PowerShell-Ausführungsrichtlinie angefordert.
+
+**Nicht direkt geprüft:** die native Tk-Darstellung unter Windows,
+`pythonw.exe`/Konsolenablösung, das Edge-/Chrome-App-Fenster, der tatsächliche
+PowerShell-COM-Aufruf zum Erstellen der Desktop-Verknüpfung sowie die
+Benutzerinstallation von Paketen auf dem verwalteten Zielrechner.
+Diese Prüfungen müssen dort erfolgen. Die vorhandene Python-Installation
+mit Tcl/Tk und institutionell erlaubte Paketbereitstellung bleiben Voraussetzung.
+
+Die DOM/API-Prüfung des Web-Frontends ist in 0.1.9 unten dokumentiert; der
+Frontendcode wurde für den grafischen Starter nicht verändert. Die bekannte
+Starlette-Testclient-Deprecation-Warnung erscheint weiterhin, alle Tests bestehen.
+
 ## Vollständiges Installationspaket 0.1.9 — 3. November 2026
 
 Der aktuelle Repository-Stand wurde unter Linux mit Python 3.12.14 und
