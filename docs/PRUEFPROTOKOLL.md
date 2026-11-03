@@ -1,5 +1,47 @@
 # Prüfprotokoll
 
+## Vollständiges Installationspaket 0.1.9 — 3. November 2026
+
+Der aktuelle Repository-Stand wurde unter Linux mit Python 3.12.14 und
+Node.js 24.22.1 geprüft. Die Installation erfolgte in einer neu angelegten
+virtuellen Python-Umgebung. Die Hauptpaketversionen stehen in
+`requirements.txt` und `requirements-dev.txt`; die optionalen DOM-Testpakete
+sind mit `package-lock.json` festgehalten.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Vollständiger Python-Lauf | **142 Tests bestanden**, davon 16 Start-/Installations-/Neustartprüfungen; 65,50 Sekunden |
+| DOM und tatsächliche lokale API | `npm test` bestanden; synthetische Daten und simulierte Modellantworten |
+| JavaScript-Syntax | `web/app.js`, `web/audio.js`, `web/websearch.js` und `tests/ui_test.cjs` erfolgreich geprüft |
+| Python-Abhängigkeiten | Installation aus `requirements-dev.txt` und `pip check` erfolgreich |
+| Installationsdiagnose | `start.py --check` erfolgreich, ohne Server- oder Modellanfrage |
+| Starter vor Paketinstallation | `--help` und `--version` funktionieren ohne Drittanbieterpakete; fehlende Pakete erzeugen einen Installationshinweis statt Traceback |
+| Reale lokale HTTP-Verbindung | Oberfläche und Datenbank werden durch den tatsächlichen Starter bereitgestellt; belegter Port wird als Fehler gemeldet |
+| Reales Beenden und erneutes Starten | Projektname mit Unicode, Chat-Einstellungen und Originaldatei bleiben im gleichen Datenordner erhalten |
+| Zweite Instanz | Ein zweiter Prozess mit demselben Datenordner wird abgewiesen; die erste Instanz läuft weiter |
+| Datenpfad | Vorrang von Startargument und Umgebung, Übernahme einer vorhandenen `data`-Datenbank sowie feste Benutzerordner für Windows/macOS/Linux geprüft |
+
+Die Datenpfadregeln für Windows und macOS wurden unter Linux mit simulierten
+Plattformwerten geprüft. Zusätzlich wurden Binärpakete für Windows x64 und
+Python 3.13 aufgelöst und heruntergeladen. Das ersetzt keinen tatsächlichen
+Windows-Lauf. `start.cmd`, der Windows-Dateisperrmechanismus und die jeweilige
+Schlüsselspeicher-Anbindung müssen auf dem Zielrechner geprüft werden.
+
+Nicht in dieser Umgebung geprüft: Verbindung zum institutionellen GPUStack
+über VPN/SSO, echte Modellinferenz, Docker-Bau und Containerlauf sowie visuelle
+Browser- und Mikrofonabnahme. Node.js/jsdom wird nur für die optionale
+DOM-Prüfung benötigt, nicht zum Starten der Anwendung.
+
+Eine Deprecation-Warnung betrifft den HTTPX-Transport des Starlette-Testclients.
+Alle Tests bestehen mit den festgelegten Versionen; die Warnung ist bei einem
+späteren Update der Testabhängigkeiten zu berücksichtigen.
+
+## Bisherige Detailprotokolle bis Version 0.1.8
+
+Die folgenden Abschnitte dokumentieren frühere fachliche Prüfungen und
+Abnahmeschritte. Maßgeblich für den aktuellen vollständigen Testlauf sind
+die Ergebnisse zu 0.1.9 oben.
+
 **Stand: 8. Oktober 2026 · Version 0.1.8**
 
 ## Tatsächlich durchgeführt

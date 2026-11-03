@@ -1,0 +1,6 @@
+record_id;title_main;date_normalized;location_place_name;review_status
+demo-001;Fiktive Landschaft A;1920;Bern;accepted
+demo-002;Fiktive Landschaft B;1921;Thun;pending
+demo-003;Fiktive Brücke A;1922;Bern;accepted
+demo-004;Fiktive Brücke B;1923;;pending
+demo-005;Fiktiver Lesesaal;1924;Thun;needs_review

@@ -25,3 +25,10 @@ node_modules/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Local test and build output
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/

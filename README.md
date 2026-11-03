@@ -1,17 +1,40 @@
 # GPUStack Arbeitsraum
 
-Ein lokal laufender, persönlicher KI-Arbeitsraum mit deutscher Oberfläche:
-Chat, Projekte, Dokumentenablage, nachvollziehbarer Dokumentensuche,
-Systemprompts, Skills, Recherche, Audioaufnahme, bearbeitbare Transkripte und Routinen.
+Ein persönlicher KI-Arbeitsraum für Gespräche, eigene Quellen und Sammlungsarbeit.
+Die deutsche Oberfläche läuft lokal im Browser; die Modelle werden über deinen
+GPUStack- oder OpenAI-kompatiblen Endpunkt angesprochen.
 
-**Version 0.1.8 · Proof of Concept · Stand 8. Oktober 2026**
+**Version 0.1.9 · Proof of Concept · Stand 3. November 2026**
 
-Das Paket enthält die Anwendung und ihren vollständigen Quellcode. Es wurde
-nicht veröffentlicht und benötigt keinen Cloud-Dienst für Oberfläche oder
-Ablage. Eure GPUStack-URL und ein API-Schlüssel werden erst vor Ort eingetragen.
+## 1. Auf einen Blick
+
+| Bereich | Was du damit machen kannst |
+|---|---|
+| **Chats & Projekte** | Gespräche, Projektnotizen und Verlauf zusammenhalten; Antworten exportieren. |
+| **Eigene Quellen** | Dokumente hochladen, Bilder/PDFs ansehen und ausgewählte Quellen im Chat befragen. |
+| **Prompts & Skills** | Arbeitsanweisungen wiederverwenden und Modelle sowie Antwortbudgets einstellen. |
+| **Recherche** | Fachquellen durchsuchen; allgemeine Websuche optional über SearXNG oder Brave ergänzen. |
+| **Audio & Transkripte** | Aufnehmen oder hochladen, transkribieren, Text bearbeiten und Ergebnisse exportieren. |
+| **Routinen & Datenlabor** | Wiederkehrende Modellaufträge planen; Tabellen und Office-Ausgaben optional im Docker-Runner berechnen. |
+
+**Ablage lokal, Modellanfragen an deinen Endpunkt.** Projekte, Chats und Dateien
+bleiben auf deinem Rechner. Ausgewählte Inhalte gehen bei einer Modellanfrage
+an den von dir eingerichteten Dienst.
+
+[Installation](#2-lokal-starten) · [GPUStack verbinden](#3-gpustack-verbinden) ·
+[Erster Arbeitsablauf](#4-der-erste-vollständige-arbeitsablauf)
+
+## 2. Lokal starten
+
+Das Repository enthält das vollständige Installationspaket einschließlich
+`start.py`, `start.cmd`, Abhängigkeitslisten, Beispieldateien und optionalem
+Docker-Bauplan. Oberfläche und Ablage benötigen keinen Cloud-Dienst.
+Eure GPUStack-URL und ein API-Schlüssel werden erst vor Ort eingetragen.
 Die mitgelieferten Beispieldaten sind frei erfunden.
 
-## 1. Lokal starten
+Das vollständige Paket über **Code → Download ZIP** aus
+[jodevelops/gpustack-workspace](https://github.com/jodevelops/gpustack-workspace)
+herunterladen und entpacken. Für Änderungen siehe [Änderungsprotokoll](CHANGELOG.md).
 
 Voraussetzungen: Python 3.11 oder neuer, empfohlen 3.12/3.13, und ein aktueller
 Browser. Für die Grundanwendung werden weder Node.js noch Docker oder
@@ -33,6 +56,8 @@ py -3.13 -m venv .venv
 Ist Python über `python` statt über den Python-Launcher erreichbar, lautet die
 erste Zeile `python -m venv .venv`. Danach gelten dieselben Befehle.
 Nach der einmaligen Installation genügt ein Doppelklick auf `start.cmd`.
+Der Starter verwendet zuerst `.venv\Scripts\python.exe`, sonst `py -3` und
+danach `python`. Er installiert und lädt selbst keine Pakete nach.
 
 Der Browser öffnet `http://127.0.0.1:8765` erst, wenn der lokale Server erfolgreich
 gestartet ist. Im Terminal erscheint **Arbeitsraum bereit**.
@@ -42,6 +67,28 @@ Die Installation lädt Python-Pakete aus dem eingestellten Paketindex. In einem
 abgeschotteten Netz kann die IT die Pakete über einen internen Mirror oder ein
 passendes Wheel-Paket bereitstellen.
 
+### Windows: bereits vorhandenes Python ohne virtuelle Umgebung
+
+Wenn die IT die Pakete bereits für den verwendeten Interpreter bereitstellt,
+in cmd.exe direkt prüfen und starten:
+
+```bat
+python start.py --check
+python start.py
+```
+
+Falls Benutzerinstallationen erlaubt sind, die Pakete einmalig mit genau
+diesem Interpreter installieren:
+
+```bat
+python -m pip install --user -r requirements.txt
+```
+
+Das benötigt keine Administratorrechte, kann aber institutionellen Vorgaben
+unterliegen. Ist auch die Paketinstallation gesperrt, die Abhängigkeitsliste
+der IT geben. `start.cmd` funktioniert ebenfalls mit bereits installierten
+Paketen ohne `.venv`.
+
 ### Linux / macOS
 
 ```sh
@@ -50,21 +97,39 @@ python3 -m venv .venv
 .venv/bin/python start.py
 ```
 
-Der lokale Datenordner ist standardmäßig `data` neben `start.py`. Er muss
-außerhalb automatisch synchronisierter Cloud-Ordner liegen. Ein anderer Ordner
-lässt sich direkt angeben:
+Der Starter wählt den Datenordner in dieser Reihenfolge:
+
+1. Explizite Angabe mit `--data-dir`.
+2. Umgebungsvariable `WORKROOM_DATA_DIR`.
+3. Ein vorhandenes `data` neben `start.py`, wenn es bereits eine
+   `workspace.sqlite3` enthält. Bestehende Installationen bleiben dadurch erhalten.
+4. Für neue Installationen ein fester Benutzerordner: unter Windows
+   `%LOCALAPPDATA%\GPUStack-Arbeitsraum`, unter macOS
+   `~/Library/Application Support/GPUStack-Arbeitsraum`, unter Linux
+   `$XDG_DATA_HOME/GPUStack-Arbeitsraum` bzw.
+   `~/.local/share/GPUStack-Arbeitsraum`.
+
+Damit bleiben neue Datenbestände auch bei einem neuen Downloadordner erhalten.
+Der tatsächlich gewählte Pfad erscheint beim Start und in den Einstellungen.
+Es werden keine alten Datenbestände automatisch verschoben oder zusammengeführt.
+Ein selbst gewählter Ordner muss lokal und außerhalb automatisch
+synchronisierter Cloud-Ordner liegen:
 
 ```bat
 .venv\Scripts\python.exe start.py --data-dir "C:\Users\DEINNAME\AppData\Local\GPUStack-Arbeitsraum"
 ```
 
 Weitere Optionen: `--port 8766` und `--no-browser`.
+`--check` prüft Python-Pakete, SQLite-FTS5 und den Datenordner, ohne Serverstart
+oder Modellanfrage. `--version` zeigt die Programmversion.
+Eine zweite Instanz mit demselben Datenordner wird abgewiesen; ein belegter
+Port führt zu einer verständlichen Fehlermeldung.
 Das Startprogramm bindet ausschließlich an `127.0.0.1`.
 **Nicht mit `0.0.0.0`, mehreren Workern oder einem öffentlichen Reverse-Proxy
 betreiben:** Diese PoC-Version hat keine Benutzeranmeldung und keine
 Mehrbenutzerberechtigungen.
 
-## 2. GPUStack verbinden
+## 3. GPUStack verbinden
 
 1. Institutionelles VPN verbinden.
 2. Im Arbeitsraum **Einstellungen** öffnen.
@@ -96,7 +161,7 @@ Optionaler, von der IT verwalteter Start: `GPUSTACK_BASE_URL` und
 kann der Endpunkt im UI nicht geändert werden. Schlüssel niemals in Git, Skripte,
 Screenshots oder das vorliegende Startpaket schreiben.
 
-## 3. Der erste vollständige Arbeitsablauf
+## 4. Der erste vollständige Arbeitsablauf
 
 1. In **Projekte** ein Vorhaben anlegen, etwa „Metadatenprüfung“.
 2. Projekt-Systemprompt und feste Projektnotizen eingeben. Diese Notizen bilden
@@ -118,7 +183,7 @@ nach einem Test im Modellprofil freigeben. Eine reine Scan-PDF wird nicht
 automatisch in Bildseiten zerlegt: zuerst lokal OCR durchführen oder einzelne
 Seiten als PNG/JPEG/WebP hochladen.
 
-## 4. Funktionsumfang
+## 5. Funktionsumfang
 
 | Bereich | In diesem PoC | Grenze / Voraussetzung |
 |---|---|---|
@@ -179,7 +244,7 @@ mit **Eingabe lokal prüfen** erneut berechnet werden.
 Ausführlicher Ablauf, Modellquellen, JSON-Importformat und Browserhinweise:
 **[Medien, Tokens und Audio](docs/MEDIEN_AUDIO.md)**.
 
-## 5. Dokumentensuche verstehen
+## 6. Dokumentensuche verstehen
 
 **Ohne Index:** Die lokale Volltextsuche findet passende Wörter in den
 ausgewählten Dateien. Es gehen nur die für den Chat gewählten Auszüge an das
@@ -289,23 +354,27 @@ Private IP-Adressen und Weiterleitungen darauf sind gesperrt; robots.txt wird
 geprüft. Eine Suche ist kein Nachweis für korrekte Modellantworten.
 Einrichtung, Datenwege, Grenzen und Abnahme: **[Websuche](docs/WEBSUCHE.md)**.
 
-### Grosse Dokumente und Update auf 0.1.8
+### Grosse Dokumente und Update auf 0.1.9
 
-Für die bestehende Installation **GPUStack-Arbeitsraum-Update-v0.1.8.zip**
-verwenden. Den Dienst beenden, das Paket separat entpacken und die enthaltenen
-Dateien und Ordner in den vorhandenen Ordner **gpustack-arbeitsraum** kopieren.
-Vorhandene Dateien ersetzen; den vorhandenen Datenordner vorher sichern.
-Das Updatepaket enthält **keine start.py, start.cmd, Nutzerdaten oder Schlüssel**.
-Die von dir angepasste `--data-dir`-Vorgabe bleibt deshalb erhalten.
-Es sind keine neuen Python-Abhängigkeiten erforderlich.
+Version 0.1.8 lag nur als Ergänzungspaket ohne Starter und Abhängigkeitslisten
+vor. Das GitHub-Repository ab 0.1.9 enthält wieder das vollständige Paket.
+Für ein Update den Dienst beenden und den in den Einstellungen angezeigten
+Datenordner sichern. Das neue Repository-ZIP separat entpacken. Eigene
+Startargumente, insbesondere `--data-dir`, für den neuen Starter übernehmen.
+Ein bestehender `data`-Ordner neben dem alten Starter kann entweder am selben
+Ort weiterverwendet oder mit `--data-dir` ausdrücklich angegeben werden.
+
+Mit dem verwendeten Python die Abhängigkeiten aus `requirements.txt`
+installieren und die Einrichtung mit `start.py --check` prüfen.
+Das Paket enthält keine Nutzerdaten und keine persönlichen Schlüssel.
 
 Anschließend wie bisher starten, die Browserseite mit **Strg+F5** neu laden,
 den zuvor gescheiterten Upload wiederholen. Bei Bedarf unter **Einstellungen →
 Ressourcengrenzen** höhere Werte setzen. Für Wikidata weiterhin einen echten
 Recherchekontakt hinterlegen und einen öffentlichen Begriff testen.
-Das vollständige PoC-Paket ist für neue Installationen gedacht; dessen
-Standarddatenordner ist weiterhin `data` neben `start.py`, sofern
-`--data-dir` bzw. `WORKROOM_DATA_DIR` nicht gesetzt ist.
+Den Datenpfad vor der ersten Modellanfrage in den Einstellungen kontrollieren.
+Bei einem unerwartet leeren Arbeitsraum zuerst den bisherigen Datenordner
+angeben; keinen neuen Datenbestand mit einem Backup vermischen.
 
 Die frühere 1-Mio.-Zeichen-Grenze war ein fester lokaler PoC-Schutz, unabhängig
 vom Modell. Neu: **100 MiB pro Original, 20 Mio. Textzeichen, keine pauschale
@@ -325,7 +394,7 @@ Deployment passen. Neue Routinen speichern ihr eigenes Budget und Ausgabetokens.
 Die vollständige Prüfung aller Grenzwerte mit Einstellbereichen und Alternativen
 steht in **[Grosse Dokumente und Ressourcengrenzen](docs/GRENZEN.md)**.
 
-## 6. Datenlabor optional einrichten
+## 7. Datenlabor optional einrichten
 
 Der Kern-PoC funktioniert ohne Docker. Für Berechnungen und echte XLSX/PPTX-Dateien
 ist eine getrennte Ausführungsumgebung vorgesehen. Auf einem verwalteten
@@ -359,7 +428,7 @@ braucht ein institutioneller Betrieb eine Festplattenquote, eine gepflegte
 Containerbasis und gegebenenfalls stärkere Isolation in einer eigenen VM.
 Hier konnten Docker und der Containerlauf nicht getestet werden.
 
-## 7. Lokaler Importordner
+## 8. Lokaler Importordner
 
 In cmd.exe vor dem Start:
 
@@ -377,7 +446,7 @@ Quellsystem, keine umfassende Suche über Netzlaufwerke.
 Für easydb/fylr, SharePoint, lokale Office-Anwendungen oder weitere Datenquellen
 sind später jeweils eigene, eng berechtigte Konnektoren sinnvoll.
 
-## 8. Sichern und löschen
+## 9. Sichern und löschen
 
 **Einstellungen → Arbeitsraum sichern** erzeugt einen konsistenten SQLite-
 Snapshot einschließlich Originaldateien. Die Schlüsselverwaltung wird nicht
@@ -400,7 +469,7 @@ gespeicherte Belege bleiben erhalten. Für die Entfernung dieser Inhalte auch
 die betroffenen Chats, Projektnotizen, Exporte und Backups beachten. Die App
 verspricht keine forensisch sichere Löschung auf SSDs.
 
-## 9. Erweiterung und Prüfung
+## 10. Erweiterung und Prüfung
 
 - [Grosse Dokumente und Ressourcengrenzen](docs/GRENZEN.md)
 - [Architektur und Ausbau](docs/ARCHITEKTUR.md)
@@ -424,14 +493,19 @@ Backend-Tests:
 Die optionale DOM-Prüfung braucht zusätzlich Node.js und `jsdom`:
 
 ```sh
-npm install --no-save jsdom
-node tests/ui_test.cjs
+npm ci
+PYTHON=.venv/bin/python npm test
 ```
+
+Unter Windows vor `npm test` stattdessen
+`set "PYTHON=.venv\Scripts\python.exe"` verwenden.
+Benötigt wird eine von `package.json` unterstützte Node.js-Version
+(22 ab 22.22.2 oder 24 ab 24.15.0; außerdem 26 und neuer).
 
 Diese Testabhängigkeiten gehören nicht zum normalen Start. Die Tests verwenden
 synthetische Daten und simulierte Modellantworten.
 
-## 10. Häufige Probleme
+## 11. Häufige Probleme
 
 ### Upload meldet `'charmap' codec can't encode character`
 
@@ -443,11 +517,11 @@ wird ein grosses Ergebnis direkt in eine temporäre UTF-8-Datei geschrieben.
 Beide Wege erhalten sämtliche Unicode-Zeichen.
 Originaldateien und Dokumentinhalte werden nicht verändert.
 
-Für die aktuelle Version das vollständige **Update-v0.1.8.zip** verwenden,
-wie oben beschrieben. `app/extract.py` arbeitet jetzt mit `app/limits.py` und
+Für die aktuelle Version das vollständige **Repository-ZIP** verwenden,
+wie oben beschrieben. `app/extract.py` arbeitet mit `app/limits.py` und
 `app/documents.py` zusammen; nicht nur diese eine neue Datei in eine alte
-Installation kopieren. Anschliessend den Upload wiederholen. Keine erneute
-Paketinstallation erforderlich.
+Installation kopieren. Abhängigkeiten aus `requirements.txt` installieren
+und anschließend den Upload wiederholen.
 
 ### Lokaler Browser meldet ERR_CONNECTION_REFUSED
 

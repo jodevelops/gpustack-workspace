@@ -19,7 +19,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse, Res
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
-from . import store, gpu, catalog, documents, retrieval, execution, limits, transcripts, websearch
+from . import __version__, store, gpu, catalog, documents, retrieval, execution, limits, transcripts, websearch
 from . import research as external_research
 
 CSRF=secrets.token_urlsafe(32)
@@ -119,7 +119,7 @@ def bootstrap():
         "research_sources":external_research.source_catalog()+[{"id":"web","name":"Websuche","description":"Allgemeine Websuche mit SearXNG oder Brave Search"}],
         "web_search":websearch.public_config(),
         "limits":limits.current(),"limit_fields":limits.catalog(),
-        "data_dir":str(store.DATA),"version":"0.1.8"}
+        "data_dir":str(store.DATA),"version":__version__}
 
 @app.put("/api/limits")
 def save_limits(body:dict):
