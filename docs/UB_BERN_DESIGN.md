@@ -5,6 +5,11 @@ bereitgestellte Paket **UB Bern Design System** mit dem darin ausgewerteten
 UniBE Manual 06. Die Vorlage beschreibt überwiegend Präsentationen; ihre
 Gestaltungsprinzipien wurden auf eine interaktive Anwendung übertragen.
 
+In 0.1.11 wurden nach Rückmeldung sichtbare Konturen für Schaltflächen ergänzt:
+CD-Grau bei neutralen Aktionen, Rot bei Primäraktionen. Auch die Schnellaktionen
+auf der Startseite und die deaktivierten Schaltflächen im Starter haben
+erkennbare Rahmen. Rechteckige Formen und flache Flächen bleiben erhalten.
+
 ## Farben und Typografie
 
 | Rolle | Umsetzung |

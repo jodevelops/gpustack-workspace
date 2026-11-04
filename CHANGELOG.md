@@ -1,5 +1,21 @@
 # Änderungen
 
+## 0.1.11 — 4. November 2026 (`design/ub-bern`)
+
+- Sichtbare Schaltflächenrahmen im grafischen Starter und bei Aktionen der
+  Browseroberfläche; UB-Farben und Schildlogo beibehalten.
+- Startprotokoll sofort sichtbar, mit Python-Pfad, lokalem Datenordner und
+  einzelnen Paketprüfungen; zusätzliche lokale Datei `startprotokoll.log`.
+- Zeitlimits für Paketprüfung und Serverstart (je 90 Sekunden), Einrichtung
+  (10 Minuten), einschliesslich blockiertem Prozessstart. Spät erzeugte Prozesse
+  eines abgebrochenen Versuchs werden beendet.
+- Eigene Aktion **Start abbrechen**; Fortschrittsanzeige endet auch dann, wenn
+  der Hintergrundvorgang ohne Bereitschaftsmeldung zurückkehrt.
+- Ein Python-Aufruf ohne Prüfergebnis wird als Fehler erkannt. Zeitüberschreitungen
+  lösen keine automatische Paketinstallation aus.
+- Lokale Datenhaltung und localhost-Bindung beibehalten. Keine GitHub-Pages-
+  Bereitstellung und kein Upload von Anwendungsdaten oder Diagnosen.
+
 ## 0.1.10 — 3. November 2026
 
 - Grafischer Windows-Starter mit Einrichtung, Fortschritt, kopierbarem Protokoll,

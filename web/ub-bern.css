@@ -71,7 +71,7 @@ textarea:focus-visible, select:focus-visible {
 .side-footer { border-color: var(--line); }
 .avatar { color: var(--ink); background: var(--unibe-grey-light); }
 .topbar { padding-inline: 32px; }
-.connection { color: var(--muted); border-color: var(--line); }
+.connection { color: var(--muted); border-color: var(--unibe-grey); }
 .status-dot { background: var(--unibe-grey); }
 .status-dot.connected { background: var(--cd-green); }
 .toolbar { padding-inline: 32px; }
@@ -84,6 +84,9 @@ textarea:focus-visible, select:focus-visible {
 .badge.red { color: var(--cd-violet); border-color: var(--cd-violet); background: var(--paper); }
 .button.primary, .send { background: var(--unibe-red); color: var(--paper); border-color: var(--unibe-red); }
 .button.primary:hover, .send:hover { background: var(--unibe-black); border-color: var(--unibe-black); }
+.button, .icon-btn, .send, .newchat { border: 1px solid var(--unibe-grey); }
+.button.primary, .send, .newchat { border-color: var(--unibe-red); }
+.button.subtle, .side-title .icon-btn, .side-footer .icon-btn { border: 1px solid var(--unibe-grey); }
 .button:hover { border-color: var(--unibe-grey); }
 .button.subtle:hover { background: var(--tint); }
 
@@ -95,7 +98,7 @@ textarea:focus-visible, select:focus-visible {
 .welcome h2 span { color: var(--unibe-red); }
 .welcome > p { max-width: 620px; font-size: .9375rem; line-height: 1.65; }
 .quick-grid { gap: 24px; margin-block: 32px; }
-.quick-card { border: 0; border-top: 1px solid var(--line); padding: 18px 0 8px; background: var(--paper); }
+.quick-card { border: 1px solid var(--unibe-grey); padding: 18px 16px; background: var(--paper); }
 .quick-card:hover { border-color: var(--unibe-red); background: var(--paper); }
 .quick-card svg { color: var(--unibe-red); }
 .quick-card b { font-weight: 700; }
@@ -158,7 +161,7 @@ dialog::backdrop { background: var(--unibe-grey-light); backdrop-filter: none; }
   .topbar, .toolbar { padding-inline: 24px; }
   .chat-scroll { padding-inline: 24px; }
   .composer-wrap { padding-inline: 24px; }
-  .quick-card { padding: 16px 0; }
+  .quick-card { padding: 16px; }
 }
 @media (max-width: 720px) {
   .sidebar { border-right: 1px solid var(--unibe-grey); }
@@ -169,7 +172,7 @@ dialog::backdrop { background: var(--unibe-grey-light); backdrop-filter: none; }
   .welcome { margin-top: 4px; }
   .welcome h2 { font-size: 1.75rem; }
   .welcome-icon { width: 44px; height: 44px; margin-bottom: 16px; }
-  .quick-grid { gap: 0; margin-block: 24px; }
+  .quick-grid { gap: 12px; margin-block: 24px; }
   .quick-card { padding-block: 16px; }
   .page { padding: 24px 16px; }
   .panel, .card { padding: 20px 0; }

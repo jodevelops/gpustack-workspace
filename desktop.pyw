@@ -43,8 +43,8 @@ def main():
         def __init__(self):
             self.root = tk.Tk()
             self.root.title("GPUStack Arbeitsraum")
-            self.root.geometry("590x410")
-            self.root.minsize(560, 410)
+            self.root.geometry("680x650")
+            self.root.minsize(650, 410)
             self.root.configure(background="#FFFFFF")
             style = ttk.Style(self.root)
             style.theme_use("clam")
@@ -53,22 +53,25 @@ def main():
             style.configure("TLabel", background="#FFFFFF", foreground="#000000")
             style.configure("Title.TLabel", font=("Arial", 19), foreground="#E6002E")
             style.configure("Muted.TLabel", foreground="#5C5D61")
-            style.configure("TButton", padding=(10, 7), relief="flat", borderwidth=1,
+            style.configure("TButton", padding=(10, 7), relief="solid", borderwidth=1,
                             background="#FFFFFF", foreground="#000000", bordercolor="#7A7C81",
-                            lightcolor="#FFFFFF", darkcolor="#FFFFFF")
+                            lightcolor="#7A7C81", darkcolor="#7A7C81")
             style.map("TButton", background=[("active", "#EDEDED")],
                       bordercolor=[("focus", "#E6002E")], foreground=[("disabled", "#5C5D61")])
             style.configure("Primary.TButton", background="#E6002E", foreground="#FFFFFF",
                             bordercolor="#E6002E", lightcolor="#E6002E", darkcolor="#E6002E")
             style.map("Primary.TButton", background=[("disabled", "#EDEDED"), ("active", "#000000")],
                       foreground=[("disabled", "#5C5D61"), ("!disabled", "#FFFFFF")],
-                      bordercolor=[("disabled", "#EDEDED"), ("active", "#000000")])
+                      bordercolor=[("disabled", "#7A7C81"), ("focus", "#000000"), ("active", "#000000")],
+                      lightcolor=[("disabled", "#7A7C81")], darkcolor=[("disabled", "#7A7C81")])
             style.configure("Horizontal.TProgressbar", background="#E6002E", troughcolor="#EDEDED",
                             borderwidth=0, lightcolor="#E6002E", darkcolor="#E6002E")
             self.service = None
             self.worker = None
             self.closing = False
-            self.log_visible = False
+            self.cancel_requested = False
+            self.attempt_outcome = False
+            self.log_visible = True
             tk.Frame(self.root, height=4, background="#E6002E").pack(fill="x")
             self.frame = ttk.Frame(self.root, padding=24)
             self.frame.pack(fill="both", expand=True)
@@ -83,7 +86,7 @@ def main():
             ttk.Label(self.frame, text=f"Lokaler KI-Arbeitsraum · Version {__version__}", style="Muted.TLabel").pack(anchor="w", pady=(3, 20))
             self.status = tk.StringVar(value="Vorbereitung …")
             ttk.Label(self.frame, textvariable=self.status, wraplength=500, font=("Arial", 11)).pack(anchor="w")
-            self.note = tk.StringVar(value="Die Oberfläche öffnet sich, sobald der Arbeitsraum bereit ist.")
+            self.note = tk.StringVar(value="Chats, Projekte und Dateien bleiben im lokalen Datenordner. Der Start benötigt keine GitHub-Verbindung.")
             ttk.Label(self.frame, textvariable=self.note, wraplength=500).pack(anchor="w", pady=(8, 15))
             self.progress = ttk.Progressbar(self.frame, mode="indeterminate")
             self.progress.pack(fill="x", pady=(0, 15))
@@ -100,6 +103,8 @@ def main():
             tools.pack(fill="x", pady=(14, 0))
             ttk.Button(tools, text="Details", command=self.toggle_log).pack(side="left")
             ttk.Button(tools, text="Protokoll kopieren", command=self.copy_log).pack(side="left", padx=8)
+            self.cancel = ttk.Button(tools, text="Start abbrechen", command=self.cancel_start)
+            self.cancel.pack(side="right")
             self.log_frame = ttk.Frame(self.frame)
             self.log = tk.Text(self.log_frame, height=12, wrap="word", font=("Consolas", 9), state="disabled",
                                background="#FFFFFF", foreground="#000000", relief="solid", borderwidth=1,
@@ -108,6 +113,7 @@ def main():
             self.log.configure(yscrollcommand=scroll.set)
             self.log.pack(side="left", fill="both", expand=True)
             scroll.pack(side="right", fill="y")
+            self.log_frame.pack(fill="both", expand=True, pady=(14, 0))
             self.root.protocol("WM_DELETE_WINDOW", self.close)
             if not self.closing:
                 self.root.after(100, self.drain)
@@ -116,8 +122,20 @@ def main():
         def begin(self, install=False):
             if self.worker and self.worker.is_alive():
                 return
-            self.service = DesktopService(port=args.port, directory=args.data_dir)
+            self.cancel_requested = False
+            self.attempt_outcome = False
+            self.status.set("Lokaler Start wird vorbereitet …")
+            self.add_log("\nLokaler Start wird vorbereitet …\n")
+            try:
+                self.service = DesktopService(port=args.port, directory=args.data_dir)
+            except Exception as exc:
+                self.add_log(str(exc) + "\n")
+                self.event("error", "Python konnte nicht für den Start vorbereitet werden. Bitte das Protokoll ansehen.")
+                return
             self.primary.configure(text="Bitte warten …", state="disabled")
+            self.cancel.configure(state="normal")
+            self.shortcut.configure(state="disabled")
+            self.progress.configure(mode="indeterminate", value=0)
             self.progress.start(12)
             self.worker = threading.Thread(target=self.service.run, kwargs={"install": install}, daemon=True)
             self.worker.start()
@@ -145,15 +163,20 @@ def main():
                 self.root.after(100, self.drain)
 
         def event(self, kind, value):
+            if self.cancel_requested and kind in ("status", "ready", "existing", "setup_required"):
+                return
+            if kind in ("setup_required", "ready", "existing", "error", "stopped"):
+                self.attempt_outcome = True
+                self.cancel.configure(state="disabled")
+                self.progress.stop()
+                self.progress.configure(mode="determinate", value=100 if kind in ("ready", "existing") else 0)
             if kind == "status":
                 self.status.set(value)
             elif kind == "setup_required":
-                self.progress.stop()
                 self.status.set(value)
-                self.note.set("Die einmalige Einrichtung lädt die benötigten Python-Pakete herunter.")
+                self.note.set("Die Einrichtung lädt Python-Pakete herunter. Projekte und Dateien werden dabei nicht hochgeladen.")
                 self.primary.configure(text="Einrichten und starten", state="normal", command=lambda: self.begin(True))
             elif kind in ("ready", "existing"):
-                self.progress.stop()
                 self.status.set("Arbeitsraum bereit")
                 self.note.set("Fenster schliessen oder Beenden stoppt den lokalen Dienst.")
                 self.primary.configure(text="Arbeitsraum öffnen", state="normal", command=self.open)
@@ -163,12 +186,28 @@ def main():
                     self.closing = True
                     self.root.after_idle(self.root.destroy)
             elif kind in ("error", "stopped"):
-                self.progress.stop()
                 self.status.set(value)
                 self.note.set("Ihre gespeicherten Projekte und Dateien bleiben erhalten.")
                 self.primary.configure(text="Erneut versuchen", state="normal", command=self.begin)
                 if kind == "error" and not self.log_visible:
                     self.toggle_log()
+            elif kind == "finished":
+                self.progress.stop()
+                self.progress.configure(mode="determinate", value=0)
+                self.cancel.configure(state="disabled")
+                if self.cancel_requested or not self.attempt_outcome:
+                    self.status.set("Start abgebrochen." if self.cancel_requested else
+                                    "Der Start wurde ohne Bereitschaftsmeldung beendet. Bitte das Protokoll ansehen.")
+                    self.note.set("Ihre gespeicherten Projekte und Dateien bleiben lokal erhalten.")
+                    self.primary.configure(text="Erneut versuchen", state="normal", command=self.begin)
+
+        def cancel_start(self):
+            if self.service and self.worker and self.worker.is_alive():
+                self.cancel_requested = True
+                self.status.set("Start wird abgebrochen …")
+                self.cancel.configure(state="disabled")
+                self.add_log("Start durch Benutzer abgebrochen.\n")
+                self.service.stop()
 
         def open(self):
             try:
@@ -188,10 +227,10 @@ def main():
             self.log_visible = not self.log_visible
             if self.log_visible:
                 self.log_frame.pack(fill="both", expand=True, pady=(14, 0))
-                self.root.geometry("650x680")
+                self.root.geometry("680x650")
             else:
                 self.log_frame.pack_forget()
-                self.root.geometry("590x410")
+                self.root.geometry("680x410")
 
         def copy_log(self):
             self.root.clipboard_clear()
@@ -205,16 +244,20 @@ def main():
             self.primary.configure(state="disabled")
             self.shortcut.configure(state="disabled")
             self.exit.configure(state="disabled")
-            self.service.stop()
+            self.cancel.configure(state="disabled")
+            if self.service:
+                self.service.stop()
             self.deadline = time.monotonic() + 15
             self.wait_for_stop()
 
         def wait_for_stop(self):
-            if not self.worker.is_alive():
+            if not self.worker or not self.worker.is_alive():
                 self.root.destroy()
                 return
             if time.monotonic() >= self.deadline:
                 self.service.stop(force=True)
+                self.root.destroy()
+                return
             self.root.after(100, self.wait_for_stop)
 
     Window().root.mainloop()
