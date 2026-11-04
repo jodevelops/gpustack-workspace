@@ -1,14 +1,14 @@
 # GPUStack Arbeitsraum
 
 Ein persönlicher KI-Arbeitsraum für Gespräche, eigene Quellen und Sammlungsarbeit.
-Die deutsche Oberfläche läuft lokal im Browser; die Modelle werden über deinen
+Die deutsche Oberfläche läuft lokal im Browser; die Modelle werden über Ihren
 GPUStack- oder OpenAI-kompatiblen Endpunkt angesprochen.
 
-**Version 0.1.10 · Proof of Concept · Stand 3. November 2026**
+**Version 0.1.11 · Proof of Concept · Stand 4. November 2026**
 
 ## 1. Auf einen Blick
 
-| Bereich | Was du damit machen kannst |
+| Bereich | Was Sie damit machen können |
 |---|---|
 | **Chats & Projekte** | Gespräche, Projektnotizen und Verlauf zusammenhalten; Antworten exportieren. |
 | **Eigene Quellen** | Dokumente hochladen, Bilder/PDFs ansehen und ausgewählte Quellen im Chat befragen. |
@@ -17,14 +17,41 @@ GPUStack- oder OpenAI-kompatiblen Endpunkt angesprochen.
 | **Audio & Transkripte** | Aufnehmen oder hochladen, transkribieren, Text bearbeiten und Ergebnisse exportieren. |
 | **Routinen & Datenlabor** | Wiederkehrende Modellaufträge planen; Tabellen und Office-Ausgaben optional im Docker-Runner berechnen. |
 
-**Ablage lokal, Modellanfragen an deinen Endpunkt.** Projekte, Chats und Dateien
-bleiben auf deinem Rechner. Ausgewählte Inhalte gehen bei einer Modellanfrage
-an den von dir eingerichteten Dienst.
+**Ablage lokal, Modellanfragen an Ihren Endpunkt.** Projekte, Chats und Dateien
+bleiben auf Ihrem Rechner. Ausgewählte Inhalte gehen bei einer Modellanfrage
+an den von Ihnen eingerichteten Dienst.
+
+**GitHub stellt ausschliesslich den Programmcode und fiktive Beispieldaten bereit.**
+Die Anwendung veröffentlicht keine Projekte, Chats, Dateien oder Startprotokolle
+auf GitHub und benötigt zum Start keinen GitHub-Zugang. Sie läuft weiterhin
+auf `127.0.0.1`; es gibt keinen GitHub-Pages-Betrieb der Anwendung.
 
 [Installation](#2-lokal-starten) · [GPUStack verbinden](#3-gpustack-verbinden) ·
 [Erster Arbeitsablauf](#4-der-erste-vollständige-arbeitsablauf)
 
+Dieser Branch **`design/ub-bern`** überträgt das bereitgestellte UB-Bern-Designsystem
+auf die Anwendung: UniBE-Rot, Weissraum, Arial und ein dezentes Schild mit drei
+KI-Sternen. Die [Designnotizen](docs/UB_BERN_DESIGN.md) beschreiben Farben,
+Typografie und die Anpassung an eine bedienbare Oberfläche.
+
+<details>
+<summary>Einblick: Startseite und Chat im UB-Bern-Design</summary>
+
+Echte Aufnahmen der lokalen Anwendung mit frei erfundenen Beispieldaten.
+Die Chatantwort ist vorgefüllt; für diese Aufnahmen wurde kein Modell angefragt.
+
+![Startseite mit Navigation, Schildlogo und zweifarbiger Überschrift](docs/screenshots/ub-bern-overview.png)
+
+![Beispielchat mit Quellenpanel und dem neuen Schildlogo bei der Antwort](docs/screenshots/ub-bern-chat.png)
+
+</details>
+
 ## 2. Lokal starten
+
+Für diese Designversion das vollständige
+[ZIP des Branches `design/ub-bern`](https://github.com/jodevelops/gpustack-workspace/archive/refs/heads/design/ub-bern.zip)
+herunterladen und entpacken. Der Start erfolgt wie unten beschrieben per
+Doppelklick auf **`start.cmd`**.
 
 Das Repository enthält das vollständige Installationspaket einschließlich
 `start.py`, `start.cmd`, grafischem Starter `desktop.pyw`, Abhängigkeitslisten, Beispieldateien und optionalem
@@ -45,7 +72,8 @@ auf einem persönlichen Rechner vorgesehen.
 
 1. Das vollständige Repository-ZIP herunterladen und **vollständig entpacken**.
    Den Programmordner an einem beschreibbaren, dauerhaften Ort behalten.
-2. **`start.cmd` doppelklicken.** Ein kleines Startfenster öffnet sich.
+2. **`desktop.pyw` doppelklicken**, wenn Python mit PYW-Dateien verknüpft ist.
+   Alternativ **`start.cmd`** verwenden. Ein grafisches Startfenster öffnet sich.
 3. Falls Pakete fehlen, einmal **Einrichten und starten** anklicken. Die
    Einrichtung lädt die benötigten Python-Pakete; Fortschritt und Fehler sind
    im Fenster sichtbar. Es müssen keine Terminalbefehle eingegeben werden.
@@ -72,6 +100,29 @@ Paketinstallationen müssen weiterhin von der IT bereitgestellt werden.
 gedoppelklickt werden. Für Fehlerdiagnosen gibt es **`start-debug.cmd`**, das
 den bisherigen Konsolenstart beibehält. Die folgenden PowerShell-Wege sind
 Alternativen zum grafischen Start.
+
+### Wenn der Startbalken stehen bleibt oder lange läuft
+
+Ab **0.1.11** ist das Protokoll von Beginn an sichtbar. Es zeigt den verwendeten
+Python-Interpreter, den lokalen Datenordner und die Prüfung jedes einzelnen
+Python-Pakets. Der Starter verwendet ungepufferte Prozessausgabe und wartet
+nicht mehr unbegrenzt auf einen stummen Unterprozess.
+
+- Paketprüfung und Serverstart haben jeweils **90 Sekunden** Zeitlimit.
+- Die ausdrücklich gestartete Paketeinrichtung hat **10 Minuten** Zeitlimit.
+- **Start abbrechen** beendet eine laufende Prüfung oder Einrichtung.
+- Nach Fehler oder Abbruch steht **Erneut versuchen** bereit. Es werden keine
+  Pakete allein aufgrund einer Zeitüberschreitung installiert.
+- **Protokoll kopieren** übernimmt die sichtbare Diagnose. Zusätzlich liegt
+  `startprotokoll.log` im lokalen Datenordner, standardmässig unter Windows
+  `%LOCALAPPDATA%\GPUStack-Arbeitsraum`. Die Datei enthält technische
+  Startmeldungen und wird beim nächsten eigenen Startversuch ersetzt.
+
+Bei einer erneuten Störung den letzten konkreten Prüfschritt und die
+Fehlermeldung aus dem Protokoll verwenden. Ein Zeitlimit allein beweist keine
+Gruppenrichtlinie. Institutionelle Sperren werden nicht abgeschaltet.
+Die gespeicherten Projekte und Dateien werden bei diesen Diagnoseschritten
+weder verschoben noch nach GitHub übertragen.
 
 ### Windows / PowerShell: mit vorhandenem Python
 

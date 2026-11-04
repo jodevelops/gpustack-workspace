@@ -85,28 +85,35 @@ class DataDirectoryLock:
             self.handle = None
 
 
-def check_installation(directory: Path) -> None:
+def check_installation(directory: Path, report=None) -> None:
+    report = report or (lambda message: None)
     missing = []
     for module, package in REQUIRED_MODULES.items():
+        report(f"Prüfe Python-Paket {package} …")
         try:
             importlib.import_module(module)
+            report(f"{package}: OK")
         except ImportError:
             missing.append(package)
+            report(f"{package}: fehlt oder ist unvollständig")
     if missing:
         raise RuntimeError(
             "Python-Pakete fehlen oder sind unvollständig: " + ", ".join(missing)
             + "\nMit demselben Python installieren:\n"
             + f'"{sys.executable}" -m pip install -r "{ROOT / "requirements.txt"}"'
         )
+    report(f"Prüfe Schreibzugriff auf den lokalen Datenordner: {directory}")
     directory.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryFile(dir=directory):
         pass
+    report("Prüfe SQLite-Volltextsuche …")
     with sqlite3.connect(":memory:") as connection:
         try:
             connection.execute("CREATE VIRTUAL TABLE probe USING fts5(content)")
         except sqlite3.OperationalError:
             raise RuntimeError("Diese Python-Installation benötigt SQLite mit FTS5-Unterstützung.") from None
-    for relative in ("web/index.html", "web/app.js", "web/style.css"):
+    report("Prüfe Programmdateien …")
+    for relative in ("web/index.html", "web/app.js", "web/style.css", "web/ub-bern.css", "web/brandmark.svg"):
         if not (ROOT / relative).is_file():
             raise RuntimeError(f"Programmdatei fehlt: {relative}. Das vollständige Paket entpacken.")
 
@@ -191,8 +198,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--desktop-control", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     try:
+        print(f"Startprüfung: Arbeitsraum {__version__}; Python {sys.version.split()[0]}", flush=True)
+        print("Lokaler Datenordner wird bestimmt …", flush=True)
         directory = data_directory(args.data_dir)
-        check_installation(directory)
+        check_installation(directory, report=lambda message: print(message, flush=True))
         if args.check:
             print(f"Installation geprüft: Version {__version__}; Datenordner: {directory}", flush=True)
             return 0

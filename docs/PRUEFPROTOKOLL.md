@@ -1,5 +1,69 @@
 # Prüfprotokoll
 
+## Lokaler Starter 0.1.11 — 4. November 2026
+
+Der gemeldete leere Dialog mit dauerhaft laufendem Balken führte zu einer
+Überarbeitung der Startdiagnose. Die konkrete Ursache auf dem Windows-Zielrechner
+ist noch nicht bestätigt. Die neue Version zeigt den aktuellen Prüfschritt und
+beendet einen hängenden Start kontrolliert.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Python-Regression | **158 Tests bestanden** unter Linux/Python 3.12.14, vollständiger Lauf in 33,36 Sekunden |
+| Abschliessende Desktop-Prüfung | Alle **16 Desktop-Tests bestanden**, einschliesslich tatsächlichem lokalem Dienst, Wiederverwendung und kontrolliertem Beenden |
+| Stummer Unterprozess | Zeitlimit greift auch ohne Ausgabe oder ohne abschliessenden Zeilenumbruch; Kindprozess wird beendet |
+| Blockierter Prozessaufruf | Der Controller bleibt abbrechbar; ein erst nach Ablauf erzeugter Prozess wird verworfen und beendet |
+| Hängender Paketimport | Letzter Paketname erscheint vor dem Import; Zeitüberschreitung erzeugt einen Fehler und keine automatische Paketinstallation |
+| Python ohne Prüfergebnis | Ein leerer Rücklauf mit Exitcode 0 wird nicht als erfolgreiche Einrichtung behandelt |
+| Gesunder Server | Startzeitlimit wird nach Bereitschaft aufgehoben; der laufende Dienst bleibt benutzbar |
+| Gerendertes Startfenster | Unter Linux/Tk 9 geprüft: Bereitschaft, hängender Import mit Zeitlimit und manuelles Abbrechen; Protokoll sofort sichtbar, graue Schaltflächenkontur tatsächlich gerendert |
+| Fortschrittsanzeige | Nach Bereitschaft vollständig, nach Fehler oder Abbruch leer und angehalten; erneuter Versuch verfügbar |
+| DOM/API | `npm test` bestanden; tatsächliche lokale API, Modellantworten simuliert |
+| Browserlayout | Chromium 153: Hauptansichten bei 1440, 390 und 320 Pixeln ohne globalen horizontalen Überlauf; keine Pageerrors oder externen Requests im durchlaufenen Ablauf |
+
+Die Prüfungen verwendeten ausschliesslich synthetische Daten. Diagnoseprotokolle
+werden im gewählten lokalen Datenordner gespeichert. Die Wiederverwendung einer
+laufenden Instanz überschreibt deren Startprotokoll nicht. Ein Testschlüssel
+erscheint nicht im Protokoll. Datenordnerregeln, localhost-Bindung und die
+bisherigen Datenwege wurden beibehalten; GitHub Pages wurde nicht eingerichtet.
+Die aktualisierten README-Screenshots zeigen fiktive Quellen und eine vorgefüllte
+Antwort ohne Modellanfrage.
+
+Die native Windows-Darstellung, Microsoft-Store-Python, lokale IT-Richtlinien,
+Desktop-Verknüpfung und der Start eines Edge-/Chrome-App-Fensters müssen auf dem
+Zielrechner geprüft werden. Die unter Linux erfolgreiche Startdiagnose ist kein
+Nachweis, dass die unbekannte Windows-Blockade beseitigt ist. Die vorhandene
+Starlette-Testclient-Deprecation-Warnung bleibt bestehen.
+
+## UB-Bern-Design, Branch `design/ub-bern` — 3. November 2026
+
+Die Designanpassung auf Basis von 0.1.10 wurde unter Linux/Python 3.12.14
+und im tatsächlich gerenderten Chromium **153.0.8010.0** geprüft.
+
+| Prüfung | Ergebnis |
+|---|---|
+| Python-Regression | **152 Tests bestanden** in 30,50 Sekunden |
+| DOM und reale lokale API | `npm test` bestanden; Modellantworten simuliert |
+| Syntax | Drei JavaScript-Module sowie `desktop.pyw` und `app/desktop.py` erfolgreich geprüft |
+| Gerenderter Desktop | Startseite, Beispielchat mit Quellenpanel, Library und Einstellungen aufgerufen; zwei Screenshots mit 1440 × 1024 Pixeln im Repository |
+| Schmale Fenster | Startseite bei 390 × 844 Pixeln ohne horizontalen Überlauf, mobile Navigation geöffnet |
+| Weitere Ansichten | Verlauf, Projekte, Library, Audio, Prompts, Recherche, Routinen, Datenlabor und Einstellungen bei 1440, 390 und 320 Pixeln Breite aufgerufen; kein globaler horizontaler Überlauf |
+| Design im Browser | Arial-Fontstack, UniBE-Rot, weisse Navigation, Radius 0 und kein Composer-Schatten bestätigt; Schildbilder geladen |
+| Bedienelemente | Sichtbarer roter Composer-Fokus nach Tastatureingabe; rote Checkbox-Akzentfarbe und freier Platz für das Suchsymbol in der Library bestätigt |
+| Browserfehler / externe Requests | Keine JavaScript-Pageerrors; keine externen Requests in den durchlaufenen Ansichten |
+
+Die Screenshots enthalten ausschliesslich synthetische Daten. Die sichtbare
+Chatantwort wurde vorgefüllt; es wurde keine GPUStack-Inferenz ausgeführt.
+Es wurden weder API-Schlüssel noch reale Projektdateien für die Aufnahmen verwendet.
+Die Kontrastberechnung für Primärfarbe und Sekundärtext ist in den
+[Designnotizen](UB_BERN_DESIGN.md) festgehalten.
+
+Das native Tk-Startfenster, das Windows-Desktop-Icon und die COM-Verknüpfung
+müssen weiterhin auf dem Windows-Zielrechner visuell geprüft werden. Die
+Browserprüfung umfasst keine vollständige Tastatur-/Screenreader-Abnahme,
+echte Mikrofonaufnahme oder formelle Barrierefreiheitszertifizierung.
+Die bekannte Starlette-Testclient-Deprecation-Warnung bleibt bestehen.
+
 ## Grafischer Starter 0.1.10 — 3. November 2026
 
 Der vollständige Python-Lauf unter Linux/Python 3.12.14 besteht mit
@@ -77,8 +141,7 @@ späteren Update der Testabhängigkeiten zu berücksichtigen.
 ## Bisherige Detailprotokolle bis Version 0.1.8
 
 Die folgenden Abschnitte dokumentieren frühere fachliche Prüfungen und
-Abnahmeschritte. Maßgeblich für den aktuellen vollständigen Testlauf sind
-die Ergebnisse zu 0.1.9 oben.
+Abnahmeschritte. Die Ergebnisse oben dokumentieren jeweils den geprüften Stand.
 
 **Stand: 8. Oktober 2026 · Version 0.1.8**
 
